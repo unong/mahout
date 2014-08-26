@@ -17,13 +17,12 @@
 
 package org.apache.mahout.classifier.naivebayes;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.io.Closeables;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -44,10 +43,12 @@ import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 import org.apache.mahout.math.map.OpenObjectIntHashMap;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.io.Closeables;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 public final class BayesUtils {
 
@@ -145,18 +146,24 @@ public final class BayesUtils {
   }
 
   public static OpenObjectIntHashMap<String> readIndexFromCache(Configuration conf) throws IOException {
+	  URI[] localFiles = DistributedCache.getCacheFiles(conf);
+	  Path labelIndexFile = HadoopUtil.findInCacheByPartOfFilename(TrainNaiveBayesJob.LABEL_INDEX, localFiles);
+
     OpenObjectIntHashMap<String> index = new OpenObjectIntHashMap<String>();
     for (Pair<Writable,IntWritable> entry
-        : new SequenceFileIterable<Writable,IntWritable>(HadoopUtil.getSingleCachedFile(conf), conf)) {
+        : new SequenceFileIterable<Writable,IntWritable>(labelIndexFile, conf)) {
       index.put(entry.getFirst().toString(), entry.getSecond().get());
     }
     return index;
   }
 
   public static Map<String,Vector> readScoresFromCache(Configuration conf) throws IOException {
+	  URI[] localFiles = DistributedCache.getCacheFiles(conf);
+	  Path weightsFile = HadoopUtil.findInCacheByPartOfFilename(TrainNaiveBayesJob.WEIGHTS, localFiles);
+
     Map<String,Vector> sumVectors = Maps.newHashMap();
     for (Pair<Text,VectorWritable> entry
-        : new SequenceFileDirIterable<Text,VectorWritable>(HadoopUtil.getSingleCachedFile(conf),
+        : new SequenceFileDirIterable<Text,VectorWritable>(weightsFile,
           PathType.LIST, PathFilters.partFilter(), conf)) {
       sumVectors.put(entry.getFirst().toString(), entry.getSecond().get());
     }

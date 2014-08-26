@@ -36,7 +36,6 @@ import org.apache.mahout.vectorizer.pruner.PrunedPartialVectorMergeReducer;
 import org.apache.mahout.vectorizer.pruner.WordsPrunerReducer;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 public final class HighDFWordsPruner {
@@ -79,8 +78,9 @@ public final class HighDFWordsPruner {
                     + "org.apache.hadoop.io.serializer.WritableSerialization");
     conf.setLong(MAX_DF, maxDF);
     conf.setLong(MIN_DF, minDF);
-    DistributedCache.setCacheFiles(
-            new URI[]{dictionaryFilePath.toUri()}, conf);
+	DistributedCache.addCacheFile(dictionaryFilePath.toUri(), conf);
+//    DistributedCache.setCacheFiles(
+//            new URI[]{dictionaryFilePath.toUri()}, conf);
 
     Job job = HadoopUtil.prepareJob(input, output, SequenceFileInputFormat.class,
             Mapper.class, null, null, WordsPrunerReducer.class,

@@ -17,11 +17,9 @@
 
 package org.apache.mahout.classifier.naivebayes.training;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.base.Splitter;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -41,13 +39,15 @@ import org.apache.mahout.common.iterator.sequencefile.SequenceFileDirIterable;
 import org.apache.mahout.common.mapreduce.VectorSumReducer;
 import org.apache.mahout.math.VectorWritable;
 
-import com.google.common.base.Splitter;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /** Trains a Naive Bayes Classifier (parameters for both Naive Bayes and Complementary Naive Bayes) */
 public final class TrainNaiveBayesJob extends AbstractJob {
   private static final String TRAIN_COMPLEMENTARY = "trainComplementary";
   private static final String ALPHA_I = "alphaI";
-  private static final String LABEL_INDEX = "labelIndex";
+  public static final String LABEL_INDEX = "labelIndex";
   private static final String EXTRACT_LABELS = "extractLabels";
   private static final String LABELS = "labels";
   public static final String WEIGHTS_PER_FEATURE = "__SPF";
@@ -94,7 +94,8 @@ public final class TrainNaiveBayesJob extends AbstractJob {
     boolean trainComplementary = hasOption(TRAIN_COMPLEMENTARY);
 
     HadoopUtil.setSerializations(getConf());
-    HadoopUtil.cacheFiles(labPath, getConf());
+	  DistributedCache.addCacheFile(labPath.toUri(), getConf());
+//    HadoopUtil.cacheFiles(labPath, getConf());
 
     // Add up all the vectors with the same labels, while mapping the labels into our index
     Job indexInstances = prepareJob(getInputPath(),
@@ -131,7 +132,8 @@ public final class TrainNaiveBayesJob extends AbstractJob {
     }
 
     // Put the per label and per feature vectors into the cache
-    HadoopUtil.cacheFiles(getTempPath(WEIGHTS), getConf());
+//    HadoopUtil.cacheFiles(getTempPath(WEIGHTS), getConf());
+	  DistributedCache.addCacheFile(getTempPath(WEIGHTS).toUri(), getConf());
 
     if (trainComplementary){
       // Calculate the per label theta normalizers, write out to LABEL_THETA_NORMALIZER vector
