@@ -16,3 +16,6 @@ Legal
 
 Documentation
   See http://mahout.apache.org/
+
+For Hadoop2
+  mvn clean install -Dhadoop2 -Dhadoop2.version=2.4.0 -DskipTests=true
