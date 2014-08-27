@@ -29,7 +29,7 @@
 
   <groupId>org.apache.mahout</groupId>
   <artifactId>mahout-buildtools</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0-gargoyle-SNAPSHOT</version>
   <name>Mahout Build Tools</name>
 
   <packaging>jar</packaging>

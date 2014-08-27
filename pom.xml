@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.mahout</groupId>
   <artifactId>mahout</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0-gargoyle-SNAPSHOT</version>
 
   <parent>
     <groupId>org.apache</groupId>
@@ -483,19 +483,43 @@
             </dependency>
           </dependencies>
         </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.4.1</version>
-          <configuration>
-            <useReleaseProfile>true</useReleaseProfile>
-            <releaseProfiles>release,mahout_release</releaseProfiles>
-            <remoteTagging>true</remoteTagging>
-            <goals>deploy</goals>
-            <autoVersionSubmodules>true</autoVersionSubmodules>
-            <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
-          </configuration>
-        </plugin>
+        <!--<plugin>-->
+          <!--<groupId>org.apache.maven.plugins</groupId>-->
+          <!--<artifactId>maven-release-plugin</artifactId>-->
+          <!--<version>2.4.1</version>-->
+          <!--<configuration>-->
+            <!--<useReleaseProfile>true</useReleaseProfile>-->
+            <!--<releaseProfiles>release,mahout_release</releaseProfiles>-->
+            <!--<remoteTagging>true</remoteTagging>-->
+            <!--<goals>deploy</goals>-->
+            <!--<autoVersionSubmodules>true</autoVersionSubmodules>-->
+            <!--<allowTimestampedSnapshots>true</allowTimestampedSnapshots>-->
+          <!--</configuration>-->
+        <!--</plugin>-->
+          <plugin>
+              <groupId>org.sonatype.plugins</groupId>
+              <artifactId>nexus-staging-maven-plugin</artifactId>
+              <version>1.5.1</version>
+              <executions>
+                  <execution>
+                      <id>default-deploy</id>
+                      <phase>deploy</phase>
+                      <goals>
+                          <goal>deploy</goal>
+                      </goals>
+                  </execution>
+              </executions>
+              <configuration>
+                  <serverId>nexus</serverId>
+                  <nexusUrl>http://maven.daumcorp.com/content/</nexusUrl>
+                  <skipStaging>true</skipStaging>
+                  <!--<snapshotRepository>-->
+                      <!--<id>daum-snapshots</id>-->
+                      <!--<name>Daum Snapshot Repository</name>-->
+                      <!--<url>http://maven.daumcorp.com/content/repositories/daum-snapshots</url>-->
+                  <!--</snapshotRepository>-->
+              </configuration>
+          </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
