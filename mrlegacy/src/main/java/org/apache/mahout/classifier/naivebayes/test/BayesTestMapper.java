@@ -19,6 +19,7 @@ package org.apache.mahout.classifier.naivebayes.test;
 
 import com.google.common.base.Preconditions;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -26,11 +27,13 @@ import org.apache.mahout.classifier.naivebayes.AbstractNaiveBayesClassifier;
 import org.apache.mahout.classifier.naivebayes.ComplementaryNaiveBayesClassifier;
 import org.apache.mahout.classifier.naivebayes.NaiveBayesModel;
 import org.apache.mahout.classifier.naivebayes.StandardNaiveBayesClassifier;
+import org.apache.mahout.classifier.naivebayes.training.TrainNaiveBayesJob;
 import org.apache.mahout.common.HadoopUtil;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.regex.Pattern;
 
 /**
@@ -48,7 +51,10 @@ public class BayesTestMapper extends Mapper<Text, VectorWritable, Text, VectorWr
   protected void setup(Context context) throws IOException, InterruptedException {
     super.setup(context);
     Configuration conf = context.getConfiguration();
-    Path modelPath = HadoopUtil.getSingleCachedFile(conf);
+    String modelPathName = conf.get(TestNaiveBayesDriver.NB_MODEL_PATH);
+    URI[] localFiles = DistributedCache.getCacheFiles(conf);
+    Path modelPath = HadoopUtil.findInCacheByPartOfFilename(modelPathName, localFiles);
+//    Path modelPath = HadoopUtil.getSingleCachedFile(conf);
     NaiveBayesModel model = NaiveBayesModel.materialize(modelPath, conf);
     boolean isComplementary = Boolean.parseBoolean(conf.get(TestNaiveBayesDriver.COMPLEMENTARY));
     

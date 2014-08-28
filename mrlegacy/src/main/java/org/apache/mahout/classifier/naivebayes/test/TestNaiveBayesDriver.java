@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.io.Closeables;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
@@ -61,6 +62,7 @@ public class TestNaiveBayesDriver extends AbstractJob {
   private static final Logger log = LoggerFactory.getLogger(TestNaiveBayesDriver.class);
 
   public static final String COMPLEMENTARY = "class"; //b for bayes, c for complementary
+  public static final String NB_MODEL_PATH = "nb-model-path";
   private static final Pattern SLASH = Pattern.compile("/");
 
   public static void main(String[] args) throws Exception {
@@ -146,12 +148,13 @@ public class TestNaiveBayesDriver extends AbstractJob {
   private boolean runMapReduce() throws IOException,
       InterruptedException, ClassNotFoundException {
     Path model = new Path(getOption("model"));
-    HadoopUtil.cacheFiles(model, getConf());
+//      HadoopUtil.cacheFiles(model, getConf());
+    DistributedCache.addCacheFile(model.toUri(), getConf());
+    getConf().set(NB_MODEL_PATH, getOption("model"));
     //the output key is the expected value, the output value are the scores for all the labels
     Job testJob = prepareJob(getInputPath(), getOutputPath(), SequenceFileInputFormat.class, BayesTestMapper.class,
         Text.class, VectorWritable.class, SequenceFileOutputFormat.class);
     //testJob.getConfiguration().set(LABEL_KEY, getOption("--labels"));
-
 
     boolean complementary = hasOption("testComplementary");
     testJob.getConfiguration().set(COMPLEMENTARY, String.valueOf(complementary));
