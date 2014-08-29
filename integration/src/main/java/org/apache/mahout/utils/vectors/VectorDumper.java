@@ -93,7 +93,10 @@ public final class VectorDumper extends AbstractJob {
     }
 
     Path[] pathArr;
-    Configuration conf = new Configuration();
+    Configuration conf = getConf();
+    if(conf == null) {
+        conf = new Configuration();
+    }
     FileSystem fs = FileSystem.get(conf);
     Path input = getInputPath();
     FileStatus fileStatus = fs.getFileStatus(input);
