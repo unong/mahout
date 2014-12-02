@@ -318,9 +318,11 @@ public final class SparseVectorsFromSequenceFiles extends AbstractJob {
           // Calculate the standard deviation
           double stdDev = BasicStats.stdDevForGivenMean(dfDir, stdCalcDir, 0.0, conf);
           maxDF = (int) (100.0 * maxDFSigma * stdDev / vectorCount);
+          log.info("UNONG maxDF[{}] : -xs[{}] stdDev[{}] / n[{}]", maxDF, maxDFSigma, stdDev, vectorCount);
         }
 
         long maxDFThreshold = (long) (vectorCount * (maxDF / 100.0f));
+        log.info("UNONG maxDFThreshold {}", maxDFThreshold);
 
         // Prune the term frequency vectors
         Path tfDir = new Path(outputDir, tfDirName);
